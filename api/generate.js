@@ -9,34 +9,33 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required fields.' });
   }
 
-  const prompt = `Write a ${tone.toLowerCase()} LinkedIn bio for someone named ${name}, a ${role}, skilled in ${skills}. Purpose: ${purpose}. Make it engaging and professional.`;
+  const prompt = `Write a ${tone.toLowerCase()} LinkedIn bio for ${name}, a ${role}, skilled in ${skills}. Purpose: ${purpose}. Make it engaging, clear, and professional.`;
 
   try {
-    const response = await fetch("https://api.deepai.org/api/text-generator", {
+    const response = await fetch("https://api.cohere.ai/v1/generate", {
       method: "POST",
       headers: {
-        "Api-Key": process.env.DEEPAI_API_KEY,
-        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${process.env.COHERE_API_KEY}`,
+        "Content-Type": "application/json",
       },
-      body: new URLSearchParams({ text: prompt }),
+      body: JSON.stringify({
+        model: "command", // cohere's default model
+        prompt: prompt,
+        max_tokens: 300,
+        temperature: 0.7,
+      }),
     });
 
     const data = await response.json();
 
-    // DEBUG: Log entire response to help identify issues
-    console.log("🔍 DeepAI Raw Response:", JSON.stringify(data));
-
-    if (data.status === 'Error') {
-      return res.status(500).json({ error: data.error || "DeepAI API error." });
+    if (data.generations && data.generations[0].text) {
+      return res.status(200).json({ result: data.generations[0].text.trim() });
+    } else {
+      console.error("Cohere Error:", data);
+      return res.status(500).json({ error: "Failed to generate bio." });
     }
-
-    if (!data.output) {
-      return res.status(500).json({ error: "No output returned from DeepAI." });
-    }
-
-    return res.status(200).json({ result: data.output.trim() });
   } catch (err) {
-    console.error("🔥 DeepAI Exception:", err);
-    return res.status(500).json({ error: "Internal Server Error (exception)." });
+    console.error("Cohere Exception:", err);
+    return res.status(500).json({ error: "Internal Server Error (Cohere)" });
   }
 }
