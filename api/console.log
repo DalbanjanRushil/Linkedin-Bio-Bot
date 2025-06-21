@@ -1,0 +1,43 @@
+export default async function handler(req, res) {
+  console.log("🔥 POST /api/generate called");
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Only POST method is allowed.' });
+  }
+
+  const { name, role, skills, tone, purpose } = req.body;
+  console.log("✅ Input received:", { name, role, skills, tone, purpose });
+
+  const prompt = `Write a ${tone.toLowerCase()} LinkedIn description for someone named ${name}, who is a ${role}. Their skills include: ${skills}. Purpose: ${purpose}.`;
+
+  try {
+    console.log("🧠 Prompt:", prompt);
+    console.log("🔑 API Key:", process.env.OPENAI_API_KEY); // REMOVE after testing
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 300,
+      }),
+    });
+
+    const data = await response.json();
+    console.log("📦 OpenAI response:", data);
+
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message });
+    }
+
+    return res.status(200).json({ result: data.choices[0].message.content.trim() });
+
+  } catch (error) {
+    console.error("❌ Server error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
