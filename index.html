@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LinkedIn Bio Generator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🔗 LinkedIn Description Generator</h1>
+
+    <form id="bioForm">
+      <input type="text" id="name" placeholder="Your Name" required />
+      <input type="text" id="role" placeholder="Your Role (e.g. Web Developer)" required />
+      <input type="text" id="skills" placeholder="Your Skills (comma separated)" required />
+      
+      <select id="tone">
+        <option value="Professional">Professional</option>
+        <option value="Friendly">Friendly</option>
+        <option value="Bold">Bold</option>
+        <option value="Creative">Creative</option>
+      </select>
+
+      <select id="purpose">
+        <option value="LinkedIn About Section">LinkedIn About Section</option>
+        <option value="Networking Post">Networking Post</option>
+        <option value="Job Seeking Post">Job Seeking Post</option>
+      </select>
+
+      <button type="submit">🚀 Generate</button>
+    </form>
+
+    <div class="result-box" id="output">
+      <h2>Your LinkedIn Description:</h2>
+      <p id="resultText">Waiting for input...</p>
+      <button id="copyBtn">📋 Copy to Clipboard</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
