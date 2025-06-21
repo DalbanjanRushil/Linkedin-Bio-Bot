@@ -23,13 +23,20 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
+    // DEBUG: Log entire response to help identify issues
+    console.log("🔍 DeepAI Raw Response:", JSON.stringify(data));
+
+    if (data.status === 'Error') {
+      return res.status(500).json({ error: data.error || "DeepAI API error." });
+    }
+
     if (!data.output) {
       return res.status(500).json({ error: "No output returned from DeepAI." });
     }
 
-    return res.status(200).json({ result: data.output });
+    return res.status(200).json({ result: data.output.trim() });
   } catch (err) {
-    console.error("DeepAI Error:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error("🔥 DeepAI Exception:", err);
+    return res.status(500).json({ error: "Internal Server Error (exception)." });
   }
 }
